@@ -1,0 +1,47 @@
+name: video-to-image-v2
+code: video-to-image-v2
+version: 0.1.0
+category: upload
+description: 비디오 파일에서 프레임을 이미지로 추출하여 업로드하는 플러그인
+actions:
+  upload:
+    entrypoint: plugin.upload.UploadAction
+    method: job
+    supported_data_type: image
+    ui_schema:
+    - $formkit: text
+      name: extracted_frame_per_second
+      label: 추출할 프레임 수 (초당)
+      help: 초당 추출할 프레임 수를 입력하세요. 비워두면 전체 프레임을 추출합니다.
+      required: false
+    - $formkit: select
+      name: output_format
+      label: 출력 이미지 형식
+      help: 추출할 이미지의 파일 형식을 선택하세요.
+      options:
+      - label: PNG
+        value: png
+      - label: JPG
+        value: jpg
+      value: png
+      required: false
+    - $formkit: text
+      name: group_name
+      label: 묶음 이름
+      help: 데이터 유닛에 할당할 묶음 이름을 입력하세요.
+      required: false
+  download:
+    entrypoint: .venv.lib.python3.12.site-packages.synapse_sdk.plugins.testing.sample_actions.DownloadAction
+    method: job
+  convert:
+    entrypoint: .venv.lib.python3.12.site-packages.synapse_sdk.plugins.testing.sample_actions.ConvertAction
+    method: job
+  train:
+    entrypoint: .venv.lib.python3.12.site-packages.synapse_sdk.plugins.testing.sample_actions.TrainAction
+    method: job
+  add_task_data:
+    entrypoint: .venv.lib.python3.12.site-packages.synapse_sdk.plugins.actions.add_task_data.action.AddTaskDataAction
+    method: job
+  export:
+    entrypoint: .venv.lib.python3.12.site-packages.synapse_sdk.plugins.actions.export.action.DefaultExportAction
+    method: job
