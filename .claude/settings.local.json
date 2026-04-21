@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/home/datamaker/development/projects/synapse-sdk-v2/sdk-v2-uploader-collection/video-to-image-uploader/.venv/bin/python:*)",
+      "Bash(/home/datamaker/development/projects/synapse-sdk-v2/sdk-v2-uploader-collection/video-to-image-uploader/.venv/bin/pip list:*)",
+      "Bash(lscpu:*)",
+      "Bash(cat:*)",
+      "Bash(then)",
+      "Bash(echo:*)",
+      "Bash(else)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(uv lock:*)",
+      "Bash(uv sync:*)"
+    ]
+  }
+}

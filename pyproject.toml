@@ -1,0 +1,16 @@
+[project]
+name = "video-to-image"
+version = "0.1.0"
+description = "비디오 파일에서 프레임을 이미지로 추출하여 업로드하는 플러그인"
+requires-python = ">=3.10"
+dependencies = [
+    "synapse-sdk",
+    "opencv-python-headless",
+    "numpy<2.1",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0",
+    "ruff>=0.8",
+]

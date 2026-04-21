@@ -1,0 +1,3 @@
+synapse-sdk[all]
+opencv-python-headless
+numpy<2.1
