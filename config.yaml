@@ -1,13 +1,14 @@
 name: video-to-image
 code: extract-image-from-video
-version: 2.0.0
+version: 2.1.0
 category: upload
 description: 비디오 파일에서 프레임을 이미지로 추출하여 업로드하는 플러그인
+supported_data_types:
+  - image
 actions:
   upload:
     entrypoint: plugin.upload.UploadAction
     method: job
-    supported_data_type: image
     ui_schema:
     - $formkit: text
       name: extracted_frame_per_second
