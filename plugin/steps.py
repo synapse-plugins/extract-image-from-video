@@ -63,27 +63,45 @@ class ExtractVideoFramesStep(BaseStep[UploadContext]):
                     if file_path is None:
                         continue
 
-                    file_path = Path(file_path)
-                    if file_path.suffix.lower() not in self.VIDEO_EXTENSIONS:
+                    # Preserve original object for SFTP handling, convert to Path only for local files
+                    original_file_path = file_path
+                    path_for_check = Path(file_path) if isinstance(file_path, str) else file_path
+
+                    # Get suffix for extension check
+                    if hasattr(path_for_check, 'suffix'):
+                        suffix = path_for_check.suffix.lower()
+                    elif hasattr(path_for_check, 'name'):
+                        suffix = Path(path_for_check.name).suffix.lower()
+                    else:
+                        suffix = Path(str(file_path)).suffix.lower()
+
+                    if suffix not in self.VIDEO_EXTENSIONS:
                         processed_files.append(file_group)
                         continue
 
+                    # Use original_file_path for SFTP support, path_for_check for metadata
                     extracted_frames, video_metadata = self._extract_frames(
-                        file_path, temp_dir, extracted_fps, output_format, context,
+                        original_file_path, temp_dir, extracted_fps, output_format, context,
                     )
+
+                    # Get file name for logging
+                    if hasattr(path_for_check, 'name'):
+                        file_name = path_for_check.name
+                    else:
+                        file_name = Path(str(original_file_path)).name
 
                     if not extracted_frames:
                         context.log(
                             'video_frame_extraction_skip',
-                            {'file': file_path.name, 'reason': 'no frames extracted'},
+                            {'file': file_name, 'reason': 'no frames extracted'},
                         )
                         continue
 
                     for i, frame_path in enumerate(extracted_frames):
                         frame_meta = {
                             **meta,
-                            'origin_file_name': file_path.name,
-                            'origin_file_format': file_path.suffix.lstrip('.').lower(),
+                            'origin_file_name': file_name,
+                            'origin_file_format': suffix.lstrip('.'),
                             'fps': video_metadata.get('fps', 0),
                             'resolution': video_metadata.get('resolution', ''),
                             'width': video_metadata.get('width', 0),
@@ -172,13 +190,23 @@ class ExtractVideoFramesStep(BaseStep[UploadContext]):
             'resolution': f'{width}x{height}',
         }
 
-    def _resolve_video_path(self, input_path: Path, context: UploadContext) -> tuple[str, Path | None]:
+    def _resolve_video_path(self, input_path: Any, context: UploadContext) -> tuple[str, Path | None]:
         """Resolve video path, downloading from SFTP if necessary.
+
+        Supports both local Path objects and SFTP/remote path objects.
 
         Returns:
             (local video file path string, temp_file Path to clean up or None)
         """
-        if hasattr(input_path, 'open') and hasattr(input_path, 'name') and not isinstance(input_path, Path):
+        # Check for SFTP or remote path object (has open/name but is not a local Path)
+        is_remote = (
+            hasattr(input_path, 'open')
+            and hasattr(input_path, 'name')
+            and not isinstance(input_path, Path)
+            and not isinstance(input_path, str)
+        )
+
+        if is_remote:
             # SFTP or remote path - download to local temp file
             temp_dir = self._create_temp_directory(context) / 'videos'
             temp_dir.mkdir(exist_ok=True)
@@ -199,13 +227,15 @@ class ExtractVideoFramesStep(BaseStep[UploadContext]):
 
     def _extract_frames(
         self,
-        video_path: Path,
+        video_path: Any,
         output_dir: Path,
         extracted_fps: float | None,
         output_format: str,
         context: UploadContext,
     ) -> tuple[list[str], dict[str, Any]]:
         """Extract frames from a single video file.
+
+        Supports both local Path objects and SFTP/remote path objects.
 
         Returns:
             (list of extracted frame paths, video metadata dict)
@@ -229,7 +259,20 @@ class ExtractVideoFramesStep(BaseStep[UploadContext]):
                 frame_interval = 1
 
             ext = output_format if output_format.startswith('.') else f'.{output_format}'
-            stem = video_path.stem
+
+            # Get stem from video_path (supports both Path and SFTP objects)
+            if hasattr(video_path, 'stem'):
+                stem = video_path.stem
+            elif hasattr(video_path, 'name'):
+                stem = Path(video_path.name).stem
+            else:
+                stem = Path(str(video_path)).stem
+
+            # Get name for logging (supports both Path and SFTP objects)
+            if hasattr(video_path, 'name'):
+                video_name = video_path.name
+            else:
+                video_name = Path(str(video_path)).name
 
             extracted_files: list[str] = []
             current_frame = 0
@@ -254,14 +297,14 @@ class ExtractVideoFramesStep(BaseStep[UploadContext]):
                             progress = (current_frame / total_frames) * 100
                             context.log(
                                 'video_frame_extraction_progress',
-                                {'file': video_path.name, 'frames': saved_frames, 'progress': f'{progress:.1f}%'},
+                                {'file': video_name, 'frames': saved_frames, 'progress': f'{progress:.1f}%'},
                             )
 
                 current_frame += 1
 
             context.log(
                 'video_frames_extracted',
-                {'file': video_path.name, 'total_frames': saved_frames},
+                {'file': video_name, 'total_frames': saved_frames},
             )
             return extracted_files, metadata
 

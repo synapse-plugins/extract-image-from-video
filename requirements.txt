@@ -1,3 +1,3 @@
-synapse-sdk==2026.1.24
+synapse-sdk[all]
 opencv-python-headless
 numpy<2.1

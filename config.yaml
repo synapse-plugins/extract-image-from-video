@@ -1,7 +1,6 @@
-name: video-to-image-v2
-code: video-to-image-v2
-version: 0.1.0
-debug: true
+name: video-to-image
+code: extract-image-from-video
+version: 2.0.0
 category: upload
 description: 비디오 파일에서 프레임을 이미지로 추출하여 업로드하는 플러그인
 actions:
