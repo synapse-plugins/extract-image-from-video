@@ -1,10 +1,10 @@
 name: video-to-image
 code: extract-image-from-video
-version: 2.1.0
+version: 2.1.1
 category: upload
 description: 비디오 파일에서 프레임을 이미지로 추출하여 업로드하는 플러그인
 supported_data_types:
-  - image
+- image
 actions:
   upload:
     entrypoint: plugin.upload.UploadAction
@@ -32,17 +32,17 @@ actions:
       help: 데이터 유닛에 할당할 묶음 이름을 입력하세요.
       required: false
   download:
-    entrypoint: .venv.lib.python3.12.site-packages.synapse_sdk.plugins.testing.sample_actions.DownloadAction
+    entrypoint: synapse_sdk.plugins.testing.sample_actions.DownloadAction
     method: job
   convert:
-    entrypoint: .venv.lib.python3.12.site-packages.synapse_sdk.plugins.testing.sample_actions.ConvertAction
+    entrypoint: synapse_sdk.plugins.testing.sample_actions.ConvertAction
     method: job
   train:
-    entrypoint: .venv.lib.python3.12.site-packages.synapse_sdk.plugins.testing.sample_actions.TrainAction
+    entrypoint: synapse_sdk.plugins.testing.sample_actions.TrainAction
     method: job
-  add_task_data:
-    entrypoint: .venv.lib.python3.12.site-packages.synapse_sdk.plugins.actions.add_task_data.action.AddTaskDataAction
+  to_task:
+    entrypoint: synapse_sdk.plugins.actions.to_task.action.ToTaskAction
     method: job
   export:
-    entrypoint: .venv.lib.python3.12.site-packages.synapse_sdk.plugins.actions.export.action.DefaultExportAction
+    entrypoint: synapse_sdk.plugins.actions.export.action.DefaultExportAction
     method: job
